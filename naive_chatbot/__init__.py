@@ -4,4 +4,3 @@
 # for this particular project. The functionality resides within the `NaiveChatbot` class.
 
 from naive_chatbot.naive_chatbot import NaiveChatbot
-from naive_chatbot.retvec_chatbot import RetvecChatbot
