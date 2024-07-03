@@ -45,7 +45,7 @@ def respond(
                           db_responses2text_path="utils/db_responses2text.pickle",
                           db_intent2response_path="utils/db_intent2response.pickle",
                           db_transliteration_path="utils/db_ar2safebw.pickle")
-    response = my_bot.get_reply(user_input, 0.97)
+    response = my_bot.get_reply(message, 0.97)
     yield response
 
 """
