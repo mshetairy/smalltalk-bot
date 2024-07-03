@@ -1,5 +1,6 @@
 import gradio as gr
 from huggingface_hub import InferenceClient
+from naive_chatbot import NaiveChatbot
 
 """
 For more information on `huggingface_hub` Inference API support, please check the docs: https://huggingface.co/docs/huggingface_hub/v0.22.2/en/guides/inference
@@ -15,29 +16,37 @@ def respond(
     temperature,
     top_p,
 ):
-    messages = [{"role": "system", "content": system_message}]
+    # messages = [{"role": "system", "content": system_message}]
 
-    for val in history:
-        if val[0]:
-            messages.append({"role": "user", "content": val[0]})
-        if val[1]:
-            messages.append({"role": "assistant", "content": val[1]})
+    # for val in history:
+    #     if val[0]:
+    #         messages.append({"role": "user", "content": val[0]})
+    #     if val[1]:
+    #         messages.append({"role": "assistant", "content": val[1]})
 
-    messages.append({"role": "user", "content": message})
+    # messages.append({"role": "user", "content": message})
 
-    response = ""
+    # response = ""
 
-    for message in client.chat_completion(
-        messages,
-        max_tokens=max_tokens,
-        stream=True,
-        temperature=temperature,
-        top_p=top_p,
-    ):
-        token = message.choices[0].delta.content
+    # for message in client.chat_completion(
+    #     messages,
+    #     max_tokens=max_tokens,
+    #     stream=True,
+    #     temperature=temperature,
+    #     top_p=top_p,
+    # ):
+    #     token = message.choices[0].delta.content
 
-        response += token
-        yield response
+    #     response += token
+    my_bot = NaiveChatbot(pretrained=True,
+                          query_tokenizer_path="utils/query_tokenizer.pickle",
+                          intent_tokenizer_path="utils/intent_tokenizer.pickle",
+                          model_weights_path="utils/checkpoint.ckpt",
+                          db_responses2text_path="utils/db_responses2text.pickle",
+                          db_intent2response_path="utils/db_intent2response.pickle",
+                          db_transliteration_path="utils/db_ar2safebw.pickle")
+    response = my_bot.get_reply(user_input, 0.97)
+    yield response
 
 """
 For information on how to customize the ChatInterface, peruse the gradio docs: https://www.gradio.app/docs/chatinterface
