@@ -2,6 +2,9 @@
 """Naive Chatbot"""
 import logging
 import pickle
+import string
+import re
+
 import numpy as np
 import tensorflow as tf
 from camel_tools.utils.normalize import normalize_unicode
@@ -34,7 +37,20 @@ max_length = 32
 oov_tok = '<OOV>'  # Out of Vocabulary
 training_portion = 1
 previous_reply = 'احنا لسه في بداية الكلام'
-
+arabic_punctuations = '''«»`÷×؛<>_()*&^%][ـ،/:"؟.,'{}~¦+|!”…“–ـ'''
+english_punctuations = string.punctuation
+punctuations_list = arabic_punctuations + english_punctuations
+arabic_diacritics = re.compile("""
+                             ّ    | # Tashdid
+                             َ    | # Fatha
+                             ً    | # Tanwin Fath
+                             ُ    | # Damma
+                             ٌ    | # Tanwin Damm
+                             ِ    | # Kasra
+                             ٍ    | # Tanwin Kasr
+                             ْ    | # Sukun
+                             ـ     # Tatwil/Kashida
+                         """, re.VERBOSE)
 
 def load_pickle_data(filepath):
     with open(filepath, 'rb') as pickle_file:
@@ -114,6 +130,17 @@ class NaiveChatbot:
         pass
 
     def preprocess_query(self, query):
+        text = query.translate(str.maketrans('', '', punctuations_list))
+        # remove diacritics
+        text = re.sub(arabic_diacritics, '', str(text))
+        # remoce emoji
+        regrex_pattern = re.compile(pattern = "["
+            u"\U0001F600-\U0001F64F"  # emoticons
+            u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+            u"\U0001F680-\U0001F6FF"  # transport & map symbols
+            u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+                               "]+", flags = re.UNICODE)
+        query = regrex_pattern.sub(r'',text)
         norm = normalize_unicode(query)
         # Normalize alef variants to 'ا'
         norm = normalize_alef_ar(norm)
